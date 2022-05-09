@@ -70,12 +70,18 @@ export default function Home() {
             .then((response) => {
                 setCategories(response.data.categories);
             });
+    },[categories]);
+
+    useEffect(() => {
+        const headers = {
+            'Content-Type': 'application/json',
+        }
 
         axios.post(process.env.REACT_APP_API_URL + '/events', {}, {headers: headers})
             .then((response) => {
                 setEvents(response.data.events);
         });
-    },[])
+    },[events]);
 
     return (
         <div>
@@ -115,7 +121,13 @@ export default function Home() {
                             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                                 <EventNoteIcon />
                             </Avatar>
-                            <Typography component="h1" variant="h5">
+                            <Typography component="h1" variant="h4">
+                                Hagyományörzőnapok
+                            </Typography>
+                            <Typography component="h2" variant="h5">
+                                Salamon Ernő Gimnázium
+                            </Typography>
+                            <Typography component="h3" variant="h6">
                                 Jelentkezési felület
                             </Typography>
                             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>

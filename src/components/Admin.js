@@ -33,6 +33,7 @@ export default function Home() {
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [events, setEvents] = useState([]);
+    const [headcount, setHeadcount] = useState(0);
     const [message, setMessage] = useState("");
     const [open, setOpen] = useState(false);
     const [loggedin, setLoggedin] = useState(false);
@@ -69,6 +70,23 @@ export default function Home() {
         });
     } 
 
+    const handleSend = async (e) => {  
+        e.preventDefault();
+        const data = {
+            headcount: headcount
+        }
+
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+
+        axios.post(process.env.REACT_APP_API_URL + '/saveheadcount', data, { headers: headers })
+        .then((response) => {
+            setMessage(response.data.message);
+            setOpen(true);
+        });
+    } 
+
     const handleClick = async (e) => {  
         e.preventDefault(); 
         const data = {
@@ -95,7 +113,18 @@ export default function Home() {
             .then((response) => {
                 setEvents(response.data.events);
         });
-    },[])
+    },[events]);
+
+    useEffect(() => {
+        const headers = {
+            'Content-Type': 'application/json',
+        }
+
+        axios.post(process.env.REACT_APP_API_URL + '/headcount', {}, {headers: headers})
+            .then((response) => {
+                setHeadcount(response.data.headcount);
+        });
+    },[]);
 
     if(loggedin)
     {
@@ -126,10 +155,32 @@ export default function Home() {
                         maxWidth="sm"
                     >
                         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                                <ListAltIcon />
-                            </Avatar>
+                            <ListAltIcon />
+                        </Avatar>
+                        <Box component="form" noValidate onSubmit={handleSend} sx={{ mt: 1 }}>
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    type="number"
+                                    id="headcount"
+                                    label="Maximális létszám"
+                                    name="headcount"
+                                    value={headcount}
+                                    onChange={e => setHeadcount(e.target.value)}
+                                    autoFocus
+                                />                                
+                                <Button
+                                    type="submit"
+                                    fullWidth
+                                    variant="contained"
+                                    sx={{ mt: 3, mb: 2 }}
+                                >
+                                    Létszámot ment
+                                </Button>
+                            </Box>
                         <Typography component="h1" variant="h5">
-                            Listázza ki az események résztvevőit
+                            Az események résztvevői
                         </Typography>
                     </Container>
                     <Container component="main" sx={{ mt: 8, mb: 2 }} maxWidth="sm" >
@@ -164,7 +215,7 @@ export default function Home() {
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
                     >
-                        Jelentkezés
+                        Letöltés
                     </Button>
                     <Box
                         component="footer"
