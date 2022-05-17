@@ -33,7 +33,8 @@ export default function Home() {
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
     const [events, setEvents] = useState([]);
-    const [headcount, setHeadcount] = useState(0);
+    const [allevents, setAllEvents] = useState([]);
+    const [headcounts, setHeadcounts] = useState([]);
     const [message, setMessage] = useState("");
     const [open, setOpen] = useState(false);
     const [loggedin, setLoggedin] = useState(false);
@@ -73,7 +74,7 @@ export default function Home() {
     const handleSend = async (e) => {  
         e.preventDefault();
         const data = {
-            headcount: headcount
+            headcounts: headcounts
         }
 
         const headers = {
@@ -104,6 +105,18 @@ export default function Home() {
         });
     }
 
+    const handleChange = (id, value) => {
+        console.log(headcounts);
+        let new_headcounts = [];
+        headcounts.forEach( (hc,i) => { 
+          if( i === id ) {
+            new_headcounts.push(value);
+          } else
+            new_headcounts.push(hc);
+        })
+        setHeadcounts(new_headcounts);
+    }
+
     useEffect(() => {
         const headers = {
             'Content-Type': 'application/json',
@@ -120,9 +133,20 @@ export default function Home() {
             'Content-Type': 'application/json',
         }
 
-        axios.post(process.env.REACT_APP_API_URL + '/headcount', {}, {headers: headers})
+        axios.post(process.env.REACT_APP_API_URL + '/headcounts', {}, {headers: headers})
             .then((response) => {
-                setHeadcount(response.data.headcount);
+                setHeadcounts(response.data.headcounts);
+        });
+    },[]);
+
+    useEffect(() => {
+        const headers = {
+            'Content-Type': 'application/json',
+        }
+
+        axios.post(process.env.REACT_APP_API_URL + '/events', {}, {headers: headers})
+            .then((response) => {
+                setAllEvents(response.data.events);
         });
     },[]);
 
@@ -158,25 +182,29 @@ export default function Home() {
                             <ListAltIcon />
                         </Avatar>
                         <Box component="form" noValidate onSubmit={handleSend} sx={{ mt: 1 }}>
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    type="number"
-                                    id="headcount"
-                                    label="Maximális létszám"
-                                    name="headcount"
-                                    value={headcount}
-                                    onChange={e => setHeadcount(e.target.value)}
-                                    autoFocus
-                                />                                
+                                {
+                                    headcounts.map((hc,i) => (
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            type="number"
+                                            key={i}
+                                            label={allevents[i]}
+                                            name="headcount"
+                                            value={hc}
+                                            onChange={(e) => handleChange(i, e.target.value)}
+                                            autoFocus
+                                        />
+                                    ))
+                                }                                
                                 <Button
                                     type="submit"
                                     fullWidth
                                     variant="contained"
                                     sx={{ mt: 3, mb: 2 }}
                                 >
-                                    Létszámot ment
+                                    Létszámokat ment
                                 </Button>
                             </Box>
                         <Typography component="h1" variant="h5">
@@ -215,7 +243,7 @@ export default function Home() {
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
                     >
-                        Letöltés
+                        Lista letöltése
                     </Button>
                     <Box
                         component="footer"

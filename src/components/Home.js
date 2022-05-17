@@ -16,10 +16,14 @@ import {
     Grid,
     Typography,
     InputLabel,
-    Select
+    Select,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from '@mui/material';
 
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Image from '../images/background.jpg';
 
 const theme = createTheme();
@@ -29,6 +33,7 @@ export default function Home() {
     const [category, setCategory] = useState("");
     const [categories, setCategories] = useState([]);
     const [event, setEvent] = useState("");
+    const [fullevents, setFullEvents] = useState([]);
     const [events, setEvents] = useState([]);
     const [message, setMessage] = useState("");
     const [open, setOpen] = useState(false);
@@ -82,6 +87,17 @@ export default function Home() {
                 setEvents(response.data.events);
         });
     },[events]);
+
+    useEffect(() => {
+        const headers = {
+            'Content-Type': 'application/json',
+        }
+
+        axios.post(process.env.REACT_APP_API_URL + '/fullevents', {}, {headers: headers})
+            .then((response) => {
+                setFullEvents(response.data.fullevents);
+        });
+    },[fullevents]);
 
     return (
         <div>
@@ -183,8 +199,28 @@ export default function Home() {
                                 >
                                     Jelentkezés
                                 </Button>
-                                <Copyright sx={{ mt: 5 }} />
                             </Box>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                >
+                                    <Typography>
+                                        Műhelylétszámok
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <ul>
+                                        {
+                                            fullevents.map((fe,i) => (
+                                                <li key={i}>{fe}</li>
+                                            ))
+                                        }
+                                    </ul>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Copyright sx={{ mt: 5 }} />
                         </Box>
                     </Grid>
                 </Grid>
